@@ -1,7 +1,7 @@
 import os
 import pytest
 import pyzipper
-from ZipFile import escape_illegal_characters_in_file_name, compress_multiple
+from ZipFile import escape_illegal_characters_in_file_name, compress_multiple, limit_file_name_length
 import tempfile
 
 ESCAPE_CHARACTERS_PACK = [
@@ -9,6 +9,12 @@ ESCAPE_CHARACTERS_PACK = [
     ('/Users/user/Downloads/?///testingfile.txt', '-Users-user-Downloads-testingfile.txt'),
     ('/Users/user/Downloads/b/a/testingfile*.txt', '-Users-user-Downloads-b-a-testingfile-.txt'),
     ('abcde', 'abcde')
+]
+
+LONG_FILENAMES_PACK = [
+    ("A" * 500 + ".eml", "A" * 251 + ".eml"),
+    ("A." * 300 + ".aa", "A." * 126 + ".aa"),
+    ("abcde", "abcde")
 ]
 
 
@@ -21,6 +27,11 @@ def unzip(zip_file_path: str, password: str = None):
 @pytest.mark.parametrize(('input_name', 'output_name'), ESCAPE_CHARACTERS_PACK)
 def test_escape_characters_in_file_name(input_name, output_name):
     assert escape_illegal_characters_in_file_name(input_name) == output_name
+
+
+@pytest.mark.parametrize(('input_name', 'output_name'), LONG_FILENAMES_PACK)
+def test_file_name_is_limited_to_255_chars(input_name, output_name):
+    assert limit_file_name_length(input_name) == output_name
 
 
 def test_compress_multiple_with_password():

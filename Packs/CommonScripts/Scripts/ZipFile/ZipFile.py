@@ -47,6 +47,15 @@ def escape_illegal_characters_in_file_name(file_name: str) -> str:
     return file_name
 
 
+def limit_file_name_length(file_name: str, max_length: int) -> str:
+    file_name_parts = file_name.rsplit(".", 1)
+    if len(file_name_parts) == 1:
+        return file_name[:255]
+
+    new_name, file_extension = file_name_parts
+    return f"{new_name[:255 - len(file_extension) - 1]}.{file_extension}"
+
+
 def main():
     try:
         args = demisto.args()
@@ -73,7 +82,7 @@ def main():
                     'Failed to get the file path for entry: ' + entry_id + ' the error message was ' + get_error(res))
 
             filePath = res[0]['Contents']['path']
-            fileCurrentName = escape_illegal_characters_in_file_name(res[0]['Contents']['name'])
+            fileCurrentName = limit_file_name_length(escape_illegal_characters_in_file_name(res[0]['Contents']['name']), 255)
 
             if not isfile(filePath):  # in case that the user will send a directory
                 raise DemistoException(entry_id + ' is not a file. Please recheck your input.')
