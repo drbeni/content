@@ -50,10 +50,10 @@ def escape_illegal_characters_in_file_name(file_name: str) -> str:
 def limit_file_name_length(file_name: str, max_length: int) -> str:
     file_name_parts = file_name.rsplit(".", 1)
     if len(file_name_parts) == 1:
-        return file_name[:255]
+        return file_name[:max_length]
 
     new_name, file_extension = file_name_parts
-    return f"{new_name[:255 - len(file_extension) - 1]}.{file_extension}"
+    return f"{new_name[:max_length - len(file_extension) - 1]}.{file_extension}"
 
 
 def main():
